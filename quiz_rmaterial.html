@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz - Rezistente si Relatii</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #0F0B1A;
+  --card: #1A1530;
+  --border: #3A2F5A;
+  --mov: #9B72CF;
+  --mov-light: #C4A8E8;
+  --mov-pale: #6B4FA0;
+  --white: #F0EBF8;
+  --muted: #A89CC0;
+  --highlight: #E8C5FF;
+  --correct: #2d7a4f;
+  --correct-bg: #162a1f;
+  --correct-border: #3d9e6a;
+  --wrong: #9a2a1a;
+  --wrong-bg: #2a1010;
+  --wrong-border: #cc5040;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(155,114,207,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(107,79,160,0.1) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+#top-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--mov), var(--highlight));
+  transition: width 0.5s ease;
+  z-index: 100;
+  width: 0%;
+}
+
+.container {
+  width: 100%;
+  max-width: 640px;
+  padding: 0 20px 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.4s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#screen-welcome { padding-top: 70px; text-align: center; }
+
+.logo-circle {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--mov-pale), var(--mov));
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 28px;
+  box-shadow: 0 0 40px rgba(155,114,207,0.35);
+}
+
+#screen-welcome h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--highlight);
+  margin-bottom: 14px;
+}
+
+.subtitle-badge {
+  display: inline-block;
+  background: rgba(155,114,207,0.15);
+  border: 1px solid rgba(155,114,207,0.3);
+  color: var(--mov-light);
+  font-size: 0.75rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+#screen-welcome p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 32px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.name-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.name-wrap label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  color: var(--highlight);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.name-wrap input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-wrap input:focus {
+  border-color: var(--mov);
+  box-shadow: 0 0 0 3px rgba(155,114,207,0.15);
+}
+.name-wrap input::placeholder { color: rgba(168,156,192,0.4); font-style: italic; }
+
+.btn-primary {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--mov-pale), var(--mov));
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 4px 24px rgba(155,114,207,0.3);
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(0); }
+
+#screen-question { padding-top: 56px; }
+
+.q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.q-counter {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.q-dots { display: flex; gap: 6px; }
+.q-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(168,156,192,0.2);
+  transition: all 0.3s;
+}
+.q-dot.done { background: var(--mov); }
+.q-dot.current { background: var(--highlight); transform: scale(1.25); }
+
+.q-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 30px 26px 26px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+
+.q-num-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--mov-pale), var(--mov));
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+
+.q-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--highlight);
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+.q-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 18px;
+  margin-top: -12px;
+  line-height: 1.5;
+}
+
+.options { display: flex; flex-direction: column; gap: 10px; }
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 15px;
+  border: 1px solid rgba(58,47,90,0.8);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255,255,255,0.03);
+  user-select: none;
+}
+.option:hover:not(.disabled) {
+  border-color: var(--mov);
+  background: rgba(155,114,207,0.08);
+  transform: translateX(4px);
+}
+.option input { display: none; }
+
+.opt-marker {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(168,156,192,0.35);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  transition: all 0.2s;
+}
+
+.opt-text {
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.option.correct { border-color: var(--correct-border); background: var(--correct-bg); }
+.option.correct .opt-marker { background: var(--correct); border-color: var(--correct); color: #fff; }
+.option.correct .opt-text { color: #7dc4a0; }
+
+.option.wrong { border-color: var(--wrong-border); background: var(--wrong-bg); }
+.option.wrong .opt-marker { background: var(--wrong); border-color: var(--wrong); color: #fff; }
+.option.wrong .opt-text { color: #e08070; }
+
+.option.neutral-after { opacity: 0.3; cursor: default; }
+.option.disabled { cursor: default; }
+
+.text-answer-wrap { display: flex; flex-direction: column; gap: 14px; }
+
+.text-answer-wrap textarea {
+  width: 100%;
+  min-height: 130px;
+  padding: 13px 15px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--white);
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.text-answer-wrap textarea:focus {
+  border-color: var(--mov);
+  box-shadow: 0 0 0 3px rgba(155,114,207,0.12);
+}
+.text-answer-wrap textarea::placeholder { color: rgba(168,156,192,0.35); font-style: italic; }
+
+.q-feedback {
+  margin-top: 14px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  display: none;
+}
+.q-feedback.fc { display: block; background: var(--correct-bg); color: #7dc4a0; border-left: 3px solid var(--correct-border); }
+.q-feedback.fw { display: block; background: var(--wrong-bg); color: #e08070; border-left: 3px solid var(--wrong-border); }
+.q-feedback.fo { display: block; background: rgba(155,114,207,0.08); color: var(--mov-light); border-left: 3px solid var(--mov); }
+
+.btn-next {
+  margin-top: 20px;
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--mov-pale), var(--mov));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 4px 20px rgba(155,114,207,0.25);
+  display: none;
+}
+.btn-next:hover { opacity: 0.9; transform: translateY(-2px); }
+.btn-next.show { display: block; }
+
+.btn-open {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--mov-pale), var(--mov));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 4px 20px rgba(155,114,207,0.25);
+}
+.btn-open:hover { opacity: 0.9; transform: translateY(-2px); }
+
+#screen-final { padding-top: 80px; text-align: center; }
+
+.final-icon {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--mov-pale), var(--mov));
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+  font-size: 34px;
+  animation: glow 3s ease-in-out infinite;
+}
+@keyframes glow {
+  0%,100% { box-shadow: 0 0 40px rgba(155,114,207,0.3); }
+  50% { box-shadow: 0 0 70px rgba(155,114,207,0.6); }
+}
+
+#screen-final h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--highlight);
+  line-height: 1.4;
+  margin-bottom: 14px;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#screen-final p {
+  font-size: 0.87rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 380px;
+  margin: 0 auto 6px;
+}
+
+.score-pill {
+  display: inline-block;
+  background: rgba(155,114,207,0.15);
+  border: 1px solid rgba(155,114,207,0.3);
+  color: var(--mov-light);
+  font-size: 0.84rem;
+  padding: 8px 24px;
+  border-radius: 20px;
+  margin-top: 18px;
+}
+
+#send-status {
+  margin-top: 16px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  min-height: 20px;
+}
+
+@media (max-width: 600px) {
+  .q-card { padding: 22px 16px 18px; }
+  #screen-welcome { padding-top: 44px; }
+}
+</style>
+</head>
+<body>
+
+<div id="top-bar"></div>
+
+<div class="container">
+
+  <div class="screen active" id="screen-welcome">
+    <div class="logo-circle">&#10024;</div>
+    <h1>Rezistente si Relatii</h1>
+    <div class="subtitle-badge">Raspunde pe baza materialului</div>
+    <p>Raspunde pe baza materialului audio pe care l-ai ascultat.</p>
+    <div class="name-wrap">
+      <label for="uname">Cum te numesti?</label>
+      <input type="text" id="uname" placeholder="Scrie numele tau..." autocomplete="name"/>
+    </div>
+    <button class="btn-primary" id="btn-start">Incepe testul &#8594;</button>
+  </div>
+
+  <div class="screen" id="screen-question">
+    <div class="q-header">
+      <div class="q-counter" id="q-counter">Intrebarea 1 din 5</div>
+      <div class="q-dots" id="q-dots"></div>
+    </div>
+    <div class="q-card">
+      <div class="q-num-badge" id="q-badge">Intrebarea 1</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-note" id="q-note"></div>
+      <div id="q-body"></div>
+      <div class="q-feedback" id="q-feedback"></div>
+      <button class="btn-next" id="btn-next">Continua &#8594;</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-final">
+    <div class="final-icon">&#127807;</div>
+    <h2>Felicitari! Raspunsurile tale au ajuns la Stefania.</h2>
+    <p>Te poti intoarce pe platforma sa bifezi task-ul si cand simti tu poti trece la urmatorul.</p>
+    <div class="score-pill" id="final-score"></div>
+    <div id="send-status"></div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+
+emailjs.init("__V97NsfQ5yUTFvVA");
+var SVC = "service_h7j6sa1";
+var TPL = "template_dd3133n";
+
+var questions = [
+  {
+    type: "choice",
+    text: "De ce percepe un copil anumite experiente ca fiind mult mai intense decat le percepe un adult?",
+    note: "",
+    opts: [
+      "Pentru ca pana in jurul varstei de 7-9 ani neocortexul nu este complet dezvoltat, iar copilul interpreteaza lumea in principal emotional.",
+      "Pentru ca un copil are o memorie mai puternica decat un adult.",
+      "Pentru ca un copil este mai sensibil doar din cauza personalitatii sale.",
+      "Pentru ca parintii transmit intotdeauna emotiile lor copiilor."
+    ],
+    correct: 0
+  },
+  {
+    type: "choice",
+    text: "Care este rolul subconstientului atunci cand creeaza tipare si mecanisme de protectie?",
+    note: "",
+    opts: [
+      "Sa ne impiedice intentionat sa avem relatii fericite.",
+      "Sa ne protejeze de ceea ce percepe ca fiind periculos, chiar daca asta inseamna sa ne limiteze.",
+      "Sa ne pedepseasca pentru experientele din copilarie.",
+      "Sa ne faca sa repetam greselile parintilor."
+    ],
+    correct: 1
+  },
+  {
+    type: "choice",
+    text: "De ce apare rezistenta atunci cand ne dorim o relatie diferita de ceea ce am trait in copilarie?",
+    note: "",
+    opts: [
+      "Pentru ca Universul ne testeaza inainte sa primim ceea ce ne dorim.",
+      "Pentru ca subconstientul respinge ceea ce ii este nefamiliar si incearca sa pastreze ceea ce considera sigur.",
+      "Pentru ca trebuie sa suferim inainte de a primi iubire.",
+      "Pentru ca manifestarea functioneaza doar daca avem suficienta vointa."
+    ],
+    correct: 1
+  },
+  {
+    type: "open",
+    text: "Explica, folosind propriile tale cuvinte, de ce subconstientul ridica un zid intre noi si relatia pe care ne-o dorim.",
+    note: ""
+  },
+  {
+    type: "open",
+    text: "Explica, folosind propriile tale cuvinte, ce putem face pentru ca acest zid sa inceapa sa cada.",
+    note: "Nu cautam definitii invatate pe de rost. Explica asa cum ai inteles tu din material."
+  }
+];
+
+var labels = ['A','B','C','D'];
+var currentQ = 0;
+var total = questions.length;
+var userName = '';
+var answers = [];
+var score = 0;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildDots() {
+  var wrap = document.getElementById('q-dots');
+  wrap.innerHTML = '';
+  questions.forEach(function(_, i) {
+    var d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' current' : '');
+    d.id = 'dot-' + i;
+    wrap.appendChild(d);
+  });
+}
+
+function updateProgress(idx) {
+  questions.forEach(function(_, i) {
+    var d = document.getElementById('dot-' + i);
+    if (!d) return;
+    d.className = 'q-dot' + (i < idx ? ' done' : i === idx ? ' current' : '');
+  });
+  document.getElementById('top-bar').style.width = (idx / total * 100) + '%';
+}
+
+function isLast(idx) { return idx === total - 1; }
+
+function renderQuestion(idx) {
+  var q = questions[idx];
+  updateProgress(idx);
+
+  document.getElementById('q-counter').textContent = 'Intrebarea ' + (idx+1) + ' din ' + total;
+  document.getElementById('q-badge').textContent = 'Intrebarea ' + (idx+1);
+  document.getElementById('q-text').textContent = q.text;
+
+  var noteEl = document.getElementById('q-note');
+  noteEl.textContent = q.note || '';
+  noteEl.style.display = q.note ? 'block' : 'none';
+
+  var body = document.getElementById('q-body');
+  body.innerHTML = '';
+
+  var fb = document.getElementById('q-feedback');
+  fb.className = 'q-feedback';
+  fb.textContent = '';
+
+  var btnNext = document.getElementById('btn-next');
+  btnNext.className = 'btn-next';
+  btnNext.textContent = isLast(idx) ? 'Trimite raspunsurile \u2192' : 'Continua \u2192';
+
+  if (q.type === 'choice') {
+    var wrap = document.createElement('div');
+    wrap.className = 'options';
+    q.opts.forEach(function(opt, oi) {
+      var lbl = document.createElement('label');
+      lbl.className = 'option';
+      lbl.innerHTML =
+        '<input type="radio" name="q' + idx + '" value="' + oi + '"/>' +
+        '<span class="opt-marker">' + (labels[oi] || oi) + '</span>' +
+        '<span class="opt-text">' + opt + '</span>';
+      lbl.querySelector('input').addEventListener('change', function() { handleChoice(idx, oi); });
+      wrap.appendChild(lbl);
+    });
+    body.appendChild(wrap);
+
+  } else {
+    var owrap = document.createElement('div');
+    owrap.className = 'text-answer-wrap';
+    var ta = document.createElement('textarea');
+    ta.id = 'open-' + idx;
+    ta.placeholder = 'Scrie raspunsul tau aici...';
+    owrap.appendChild(ta);
+
+    var obtn = document.createElement('button');
+    obtn.className = 'btn-open';
+    obtn.textContent = isLast(idx) ? 'Trimite raspunsurile \u2192' : 'Continua \u2192';
+    obtn.addEventListener('click', function() { handleOpen(idx); });
+    owrap.appendChild(obtn);
+
+    body.appendChild(owrap);
+  }
+}
+
+function handleChoice(idx, selected) {
+  var q = questions[idx];
+  var fb = document.getElementById('q-feedback');
+  var btnNext = document.getElementById('btn-next');
+
+  document.querySelectorAll('[name="q' + idx + '"]').forEach(function(r) { r.disabled = true; });
+
+  var opts = document.querySelectorAll('#q-body .option');
+  opts.forEach(function(opt, oi) {
+    opt.classList.add('disabled');
+    if (oi === q.correct) {
+      opt.classList.add('correct');
+      opt.querySelector('.opt-marker').textContent = '\u2713';
+    } else if (oi === selected && oi !== q.correct) {
+      opt.classList.add('wrong');
+      opt.querySelector('.opt-marker').textContent = '\u2717';
+    } else {
+      opt.classList.add('neutral-after');
+    }
+  });
+
+  if (selected === q.correct) {
+    score++;
+    fb.className = 'q-feedback fc';
+    fb.textContent = '\u2713 Corect!';
+  } else {
+    fb.className = 'q-feedback fw';
+    fb.textContent = '\u2717 Raspuns gresit. Varianta corecta: ' + q.opts[q.correct];
+  }
+
+  answers.push({ q: idx+1, type: 'choice', answer: q.opts[selected], correct: selected === q.correct });
+  btnNext.classList.add('show');
+}
+
+function handleOpen(idx) {
+  var ta = document.getElementById('open-' + idx);
+  if (!ta) return;
+  var val = ta.value.trim();
+  if (!val) {
+    ta.style.borderColor = '#cc5040';
+    ta.placeholder = 'Te rog scrie ceva inainte de a continua...';
+    setTimeout(function() { ta.style.borderColor = ''; }, 2000);
+    return;
+  }
+  ta.disabled = true;
+
+  var fb = document.getElementById('q-feedback');
+  fb.className = 'q-feedback fo';
+  fb.textContent = '\u2713 Raspunsul tau a fost inregistrat.';
+
+  var obtn = ta.parentNode.querySelector('.btn-open');
+  if (obtn) obtn.remove();
+
+  answers.push({ q: idx+1, type: 'open', answer: val, correct: null });
+
+  var btnNext = document.getElementById('btn-next');
+  btnNext.classList.add('show');
+  btnNext.textContent = isLast(idx) ? 'Trimite raspunsurile \u2192' : 'Continua \u2192';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= total) {
+    finishQuiz();
+  } else {
+    renderQuestion(currentQ);
+  }
+}
+
+function finishQuiz() {
+  document.getElementById('top-bar').style.width = '100%';
+  var graded = answers.filter(function(a) { return a.correct !== null; });
+  var correct = graded.filter(function(a) { return a.correct === true; }).length;
+  document.getElementById('final-score').textContent = correct + ' din ' + graded.length + ' raspunsuri corecte';
+  showScreen('screen-final');
+  sendEmail(correct, graded.length);
+}
+
+function sendEmail(correctCount, totalCount) {
+  var statusEl = document.getElementById('send-status');
+  statusEl.textContent = 'Se trimite...';
+
+  var lines = answers.map(function(a) {
+    var s = a.correct === null ? '[raspuns liber]' : (a.correct ? '\u2713 CORECT' : '\u2717 GRESIT');
+    return 'I' + a.q + ' ' + s + ': ' + a.answer;
+  });
+
+  emailjs.send(SVC, TPL, {
+    email: "noreply@quiz.com",
+    user_name: userName,
+    score: correctCount,
+    total: totalCount,
+    percentage: Math.round(correctCount / totalCount * 100),
+    summary: lines.join('\n'),
+    date: new Date().toLocaleDateString('ro-RO', { day: '2-digit', month: 'long', year: 'numeric' })
+  }).then(function() {
+    statusEl.textContent = '\u2713 Raspunsurile au ajuns la Stefania.';
+    statusEl.style.color = '#7dc4a0';
+  }).catch(function(err) {
+    statusEl.textContent = 'Eroare la trimitere.';
+    statusEl.style.color = '#e08070';
+    console.error(err);
+  });
+}
+
+document.getElementById('btn-start').addEventListener('click', function() {
+  var name = document.getElementById('uname').value.trim();
+  if (!name) {
+    document.getElementById('uname').focus();
+    document.getElementById('uname').style.borderColor = '#cc5040';
+    setTimeout(function() { document.getElementById('uname').style.borderColor = ''; }, 2000);
+    return;
+  }
+  userName = name;
+  buildDots();
+  showScreen('screen-question');
+  renderQuestion(0);
+});
+
+document.getElementById('btn-next').addEventListener('click', function() {
+  nextQuestion();
+});
+
+})();
+</script>
+</body>
+</html>
