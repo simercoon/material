@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -15,40 +16,34 @@
         .subtitle { font-size: 14px; color: #666; margin-bottom: 20px; }
         .score-bar { display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; }
         .score-item { text-align: center; }
-        .score-label { font-size: 12px; color: #999; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px; }
+        .score-label { font-size: 12px; color: #999; text-transform: uppercase; font-weight: 500; }
         .score-number { font-size: 24px; font-weight: 600; margin-top: 5px; }
         .correct-score { color: #2e7d32; }
         .incorrect-score { color: #c62828; }
-        .screen { display: none; }
-        .screen.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .screen { display: none !important; }
+        .screen.active { display: block !important; }
         input[type="text"], textarea { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; margin-bottom: 20px; }
-        input[type="text"]:focus, textarea:focus { outline: none; border-color: #333; box-shadow: 0 0 0 3px rgba(51,51,51,0.1); }
+        input[type="text"]:focus, textarea:focus { outline: none; border-color: #333; }
         textarea { resize: none; min-height: 100px; }
         .question-header { font-size: 13px; color: #999; margin-bottom: 20px; text-align: center; }
-        .question-text { font-size: 16px; line-height: 1.6; margin-bottom: 25px; font-weight: 500; color: #333; }
+        .question-text { font-size: 16px; line-height: 1.6; margin-bottom: 25px; font-weight: 500; }
         .options { margin-bottom: 25px; }
-        .option { margin-bottom: 14px; display: flex; align-items: flex-start; cursor: pointer; padding: 10px; border-radius: 8px; border: 2px solid transparent; transition: all 0.2s; }
+        .option { margin-bottom: 14px; display: flex; align-items: flex-start; cursor: pointer; padding: 10px; border-radius: 8px; border: 2px solid transparent; }
         .option:hover { background: #f5f5f5; }
-        .option input[type="radio"] { margin-top: 4px; margin-right: 12px; cursor: pointer; width: 18px; height: 18px; flex-shrink: 0; }
-        .option label { cursor: pointer; font-size: 15px; line-height: 1.5; color: #333; flex: 1; }
-        .option.checked { background: #f5f5f5; }
+        .option input[type="radio"] { margin-top: 4px; margin-right: 12px; cursor: pointer; width: 18px; height: 18px; }
+        .option label { cursor: pointer; font-size: 15px; line-height: 1.5; flex: 1; }
         .option.correct { border-color: #2e7d32; background: rgba(76, 175, 80, 0.08); }
         .option.incorrect { border-color: #c62828; background: rgba(244, 67, 54, 0.08); }
-        .btn { width: 100%; padding: 14px; font-size: 16px; background: #333; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
-        .btn:hover:not(:disabled) { background: #1a1a1a; transform: translateY(-1px); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn { width: 100%; padding: 14px; font-size: 16px; background: #333; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn:hover { background: #1a1a1a; }
         .buttons { display: flex; gap: 10px; margin-top: 25px; }
         .btn-secondary { background: #f0f0f0; color: #333; flex: 1; }
-        .btn-secondary:hover { background: #e0e0e0; }
         .btn { flex: 1; }
         .success { text-align: center; padding: 40px 20px; }
         .success .emoji { font-size: 60px; margin-bottom: 30px; }
         .success h2 { font-size: 20px; margin-bottom: 15px; font-weight: 600; }
-        .success p { font-size: 14px; color: #666; line-height: 1.6; }
-        .progress-bar { width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; margin-bottom: 20px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #333; width: 0%; transition: width 0.3s; }
-        .text-question-note { font-size: 12px; color: #999; margin-top: 10px; font-style: italic; }
+        .progress-bar { width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; margin-bottom: 20px; }
+        .progress-fill { height: 100%; background: #333; }
     </style>
 </head>
 <body>
@@ -61,101 +56,81 @@
 
     <div class="screen active" id="screen-name">
         <input type="text" id="name" placeholder="Cum te numești?" maxlength="100">
-        <button class="btn" onclick="startTest()">Incepe →</button>
+        <button class="btn" type="button" onclick="app.startTest()">Incepe →</button>
     </div>
 
     <div class="screen" id="screen-q1">
         <div class="progress-bar"><div class="progress-fill" style="width: 17%;"></div></div>
-        <div class="score-bar">
-            <div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score" id="correct">0</div></div>
-            <div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score" id="incorrect">0</div></div>
-        </div>
+        <div class="score-bar"><div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score">0</div></div><div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score">0</div></div></div>
         <div class="question-header">Intrebarea 1 din 6</div>
         <div class="question-text">Dacă îți dorești ca persoana ta specifică să vină într-o versiune diferită, ce este important să faci?</div>
         <div class="options">
-            <div class="option" onclick="selectRadio(this, 'q1', 'A')"><input type="radio" name="q1" value="A"><label>Să aștepți ca persoana să se schimbe prima.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q1', 'B')"><input type="radio" name="q1" value="B"><label>Să alegi în mod conștient să o privești diferit.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q1', 'C')"><input type="radio" name="q1" value="C"><label>Să analizezi în continuare ceea ce a făcut în trecut.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q1', 'D')"><input type="radio" name="q1" value="D"><label>Să încerci să controlezi comportamentul persoanei.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q1', 'A')"><input type="radio" name="q1" value="A"><label>Să aștepți ca persoana să se schimbe prima.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q1', 'B')"><input type="radio" name="q1" value="B"><label>Să alegi în mod conștient să o privești diferit.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q1', 'C')"><input type="radio" name="q1" value="C"><label>Să analizezi în continuare ceea ce a făcut în trecut.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q1', 'D')"><input type="radio" name="q1" value="D"><label>Să încerci să controlezi comportamentul persoanei.</label></div>
         </div>
-        <div class="buttons"><button class="btn btn-secondary" onclick="back()">← Înapoi</button><button class="btn" onclick="next()">Continua →</button></div>
+        <div class="buttons"><button class="btn btn-secondary" type="button" onclick="app.back()">← Înapoi</button><button class="btn" type="button" onclick="app.next()">Continua →</button></div>
     </div>
 
     <div class="screen" id="screen-q2">
         <div class="progress-bar"><div class="progress-fill" style="width: 33%;"></div></div>
-        <div class="score-bar">
-            <div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score" id="correct">0</div></div>
-            <div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score" id="incorrect">0</div></div>
-        </div>
+        <div class="score-bar"><div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score">0</div></div><div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score">0</div></div></div>
         <div class="question-header">Intrebarea 2 din 6</div>
         <div class="question-text">Conform ideii despre fizica cuantică prezentate în material, cum ne raportăm la posibilitățile existente?</div>
         <div class="options">
-            <div class="option" onclick="selectRadio(this, 'q2', 'A')"><input type="radio" name="q2" value="A"><label>Există o singură variantă posibilă, iar noi trebuie să o acceptăm.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q2', 'B')"><input type="radio" name="q2" value="B"><label>Există mai multe posibilități, iar noi ne aliniem versiunii pe care alegem să o privim și să o observăm.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q2', 'C')"><input type="radio" name="q2" value="C"><label>Realitatea se schimbă doar atunci când cealaltă persoană ia o decizie diferită.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q2', 'D')"><input type="radio" name="q2" value="D"><label>Trebuie să așteptăm ca exteriorul să se schimbe înainte să alegem o altă posibilitate.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q2', 'A')"><input type="radio" name="q2" value="A"><label>Există o singură variantă posibilă, iar noi trebuie să o acceptăm.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q2', 'B')"><input type="radio" name="q2" value="B"><label>Există mai multe posibilități, iar noi ne aliniem versiunii pe care alegem să o privim și să o observăm.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q2', 'C')"><input type="radio" name="q2" value="C"><label>Realitatea se schimbă doar atunci când cealaltă persoană ia o decizie diferită.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q2', 'D')"><input type="radio" name="q2" value="D"><label>Trebuie să așteptăm ca exteriorul să se schimbe înainte să alegem o altă posibilitate.</label></div>
         </div>
-        <div class="buttons"><button class="btn btn-secondary" onclick="back()">← Înapoi</button><button class="btn" onclick="next()">Continua →</button></div>
+        <div class="buttons"><button class="btn btn-secondary" type="button" onclick="app.back()">← Înapoi</button><button class="btn" type="button" onclick="app.next()">Continua →</button></div>
     </div>
 
     <div class="screen" id="screen-q3">
         <div class="progress-bar"><div class="progress-fill" style="width: 50%;"></div></div>
-        <div class="score-bar">
-            <div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score" id="correct">0</div></div>
-            <div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score" id="incorrect">0</div></div>
-        </div>
+        <div class="score-bar"><div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score">0</div></div><div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score">0</div></div></div>
         <div class="question-header">Intrebarea 3 din 6</div>
         <div class="question-text">Conform materialului, explică prin propriile cuvinte ce înseamnă ideea că există mai multe posibilități, iar tu alegi versiunea pe care o privești.</div>
         <textarea id="q3" placeholder="Răspunsul tău..."></textarea>
-        <div class="text-question-note">Nu se va valida automat - vei primi feedback manual</div>
-        <div class="buttons"><button class="btn btn-secondary" onclick="back()">← Înapoi</button><button class="btn" onclick="next()">Continua →</button></div>
+        <div class="buttons"><button class="btn btn-secondary" type="button" onclick="app.back()">← Înapoi</button><button class="btn" type="button" onclick="app.next()">Continua →</button></div>
     </div>
 
     <div class="screen" id="screen-q4">
         <div class="progress-bar"><div class="progress-fill" style="width: 67%;"></div></div>
-        <div class="score-bar">
-            <div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score" id="correct">0</div></div>
-            <div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score" id="incorrect">0</div></div>
-        </div>
+        <div class="score-bar"><div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score">0</div></div><div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score">0</div></div></div>
         <div class="question-header">Intrebarea 4 din 6</div>
         <div class="question-text">Ce reprezintă „fotografia veche" din exemplul prezentat în material?</div>
         <div class="options">
-            <div class="option" onclick="selectRadio(this, 'q4', 'A')"><input type="radio" name="q4" value="A"><label>Realitatea pe care trebuie să o acceptăm, pentru că deja s-a întâmplat.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q4', 'B')"><input type="radio" name="q4" value="B"><label>O imagine a realității din trecut, pe care nu trebuie să o tratăm ca pe un verdict asupra viitorului.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q4', 'C')"><input type="radio" name="q4" value="C"><label>O imagine a ceea ce se va întâmpla dacă nu schimbăm nimic.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q4', 'D')"><input type="radio" name="q4" value="D"><label>O situație care trebuie ignorată complet.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q4', 'A')"><input type="radio" name="q4" value="A"><label>Realitatea pe care trebuie să o acceptăm, pentru că deja s-a întâmplat.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q4', 'B')"><input type="radio" name="q4" value="B"><label>O imagine a realității din trecut, pe care nu trebuie să o tratăm ca pe un verdict asupra viitorului.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q4', 'C')"><input type="radio" name="q4" value="C"><label>O imagine a ceea ce se va întâmpla dacă nu schimbăm nimic.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q4', 'D')"><input type="radio" name="q4" value="D"><label>O situație care trebuie ignorată complet.</label></div>
         </div>
-        <div class="buttons"><button class="btn btn-secondary" onclick="back()">← Înapoi</button><button class="btn" onclick="next()">Continua →</button></div>
+        <div class="buttons"><button class="btn btn-secondary" type="button" onclick="app.back()">← Înapoi</button><button class="btn" type="button" onclick="app.next()">Continua →</button></div>
     </div>
 
     <div class="screen" id="screen-q5">
         <div class="progress-bar"><div class="progress-fill" style="width: 83%;"></div></div>
-        <div class="score-bar">
-            <div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score" id="correct">0</div></div>
-            <div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score" id="incorrect">0</div></div>
-        </div>
+        <div class="score-bar"><div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score">0</div></div><div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score">0</div></div></div>
         <div class="question-header">Intrebarea 5 din 6</div>
         <div class="question-text">Ce este important să faci atunci când exteriorul îți arată ceva diferit de ceea ce ai ales?</div>
         <div class="options">
-            <div class="option" onclick="selectRadio(this, 'q5', 'A')"><input type="radio" name="q5" value="A"><label>Să schimbi imediat ceea ce îți dorești.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q5', 'B')"><input type="radio" name="q5" value="B"><label>Să consideri că realitatea ți-a arătat adevărul și să renunți.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q5', 'C')"><input type="radio" name="q5" value="C"><label>Să îți păstrezi atenția pe ceea ce ai ales și să nu tratezi exteriorul ca pe un verdict.</label></div>
-            <div class="option" onclick="selectRadio(this, 'q5', 'D')"><input type="radio" name="q5" value="D"><label>Să încerci să controlezi imediat situația din exterior.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q5', 'A')"><input type="radio" name="q5" value="A"><label>Să schimbi imediat ceea ce îți dorești.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q5', 'B')"><input type="radio" name="q5" value="B"><label>Să consideri că realitatea ți-a arătat adevărul și să renunți.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q5', 'C')"><input type="radio" name="q5" value="C"><label>Să îți păstrezi atenția pe ceea ce ai ales și să nu tratezi exteriorul ca pe un verdict.</label></div>
+            <div class="option" onclick="app.selectRadio(this, 'q5', 'D')"><input type="radio" name="q5" value="D"><label>Să încerci să controlezi imediat situația din exterior.</label></div>
         </div>
-        <div class="buttons"><button class="btn btn-secondary" onclick="back()">← Înapoi</button><button class="btn" onclick="next()">Continua →</button></div>
+        <div class="buttons"><button class="btn btn-secondary" type="button" onclick="app.back()">← Înapoi</button><button class="btn" type="button" onclick="app.next()">Continua →</button></div>
     </div>
 
     <div class="screen" id="screen-q6">
         <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
-        <div class="score-bar">
-            <div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score" id="correct">0</div></div>
-            <div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score" id="incorrect">0</div></div>
-        </div>
+        <div class="score-bar"><div class="score-item"><div class="score-label">Corecte</div><div class="score-number correct-score">0</div></div><div class="score-item"><div class="score-label">Greșite</div><div class="score-number incorrect-score">0</div></div></div>
         <div class="question-header">Intrebarea 6 din 6</div>
         <div class="question-text">Explică prin propriile cuvinte ce înseamnă exemplul cu „comanda greșită" și cum se aplică el în manifestare.</div>
         <textarea id="q6" placeholder="Răspunsul tău..."></textarea>
-        <div class="text-question-note">Nu se va valida automat - vei primi feedback manual</div>
-        <div class="buttons"><button class="btn btn-secondary" onclick="back()">← Înapoi</button><button class="btn" onclick="submit()">Trimite →</button></div>
+        <div class="buttons"><button class="btn btn-secondary" type="button" onclick="app.back()">← Înapoi</button><button class="btn" type="button" onclick="app.submit()">Trimite →</button></div>
     </div>
 
     <div class="screen" id="screen-success">
@@ -169,105 +144,102 @@
 
 <script>
 emailjs.init('__V97NsfQ5yUTFvVA');
-let state = { page: 'name', answers: {}, correct: 0, incorrect: 0 };
-const correctAnswers = { q1: 'B', q2: 'B', q4: 'B', q5: 'C' };
 
-function selectRadio(optionDiv, question, value) {
-    const question_screens = {
-        'q1': 'screen-q1',
-        'q2': 'screen-q2',
-        'q4': 'screen-q4',
-        'q5': 'screen-q5'
-    };
-    
-    document.querySelectorAll(`input[name="${question}"]`).forEach(r => r.checked = false);
-    const radio = optionDiv.querySelector('input[type="radio"]');
-    radio.checked = true;
-    
-    document.querySelectorAll(`#${question_screens[question]} .option`).forEach(o => {
-        o.classList.remove('correct', 'incorrect', 'checked');
-    });
-    
-    optionDiv.classList.add('checked');
-    
-    if (value === correctAnswers[question]) {
-        optionDiv.classList.add('correct');
-        if (!state.answers[question]) {
-            state.correct++;
-            state.answers[question] = value;
+const app = {
+    state: { page: 'name', answers: {}, correct: 0, incorrect: 0 },
+    correctAnswers: { q1: 'B', q2: 'B', q4: 'B', q5: 'C' },
+
+    show(page) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-' + page).classList.add('active');
+        this.state.page = page;
+        this.updateScores();
+    },
+
+    updateScores() {
+        document.querySelectorAll('.correct-score').forEach(el => el.textContent = this.state.correct);
+        document.querySelectorAll('.incorrect-score').forEach(el => el.textContent = this.state.incorrect);
+    },
+
+    startTest() {
+        const name = document.getElementById('name').value.trim();
+        if (!name) { alert('Introduceți numele'); return; }
+        this.state.answers.name = name;
+        this.state.correct = 0;
+        this.state.incorrect = 0;
+        this.show('q1');
+    },
+
+    selectRadio(optionDiv, question, value) {
+        document.querySelectorAll(`input[name="${question}"]`).forEach(r => r.checked = false);
+        optionDiv.querySelector('input[type="radio"]').checked = true;
+        
+        document.querySelectorAll(`#screen-${question} .option`).forEach(o => {
+            o.classList.remove('correct', 'incorrect');
+        });
+
+        if (value === this.correctAnswers[question]) {
+            optionDiv.classList.add('correct');
+            if (!this.state.answers[question]) {
+                this.state.correct++;
+            }
+        } else {
+            optionDiv.classList.add('incorrect');
+            if (!this.state.answers[question]) {
+                this.state.incorrect++;
+            }
         }
-    } else {
-        optionDiv.classList.add('incorrect');
-        if (!state.answers[question]) {
-            state.incorrect++;
-            state.answers[question] = value;
+        
+        this.state.answers[question] = value;
+        this.updateScores();
+    },
+
+    next() {
+        const pages = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'];
+        const curr = this.state.page;
+        
+        if (curr === 'q3' || curr === 'q6') {
+            const val = document.getElementById(curr).value.trim();
+            if (!val) { alert('Completați răspunsul'); return; }
+            this.state.answers[curr] = val;
+        } else {
+            if (!this.state.answers[curr]) { alert('Selectați un răspuns'); return; }
         }
-    }
-    
-    updateScores();
-    state.answers[question] = value;
-}
+        
+        const idx = pages.indexOf(curr);
+        if (idx < pages.length - 1) this.show(pages[idx + 1]);
+    },
 
-function updateScores() {
-    document.querySelectorAll('#correct').forEach(el => el.textContent = state.correct);
-    document.querySelectorAll('#incorrect').forEach(el => el.textContent = state.incorrect);
-}
+    back() {
+        const pages = ['name', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'];
+        const idx = pages.indexOf(this.state.page);
+        if (idx > 0) this.show(pages[idx - 1]);
+    },
 
-function show(page) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + page).classList.add('active');
-    state.page = page;
-    updateScores();
-}
-
-function startTest() {
-    const name = document.getElementById('name').value.trim();
-    if (!name) { alert('Introduceți numele'); return; }
-    state.answers.name = name;
-    state.correct = 0;
-    state.incorrect = 0;
-    updateScores();
-    show('q1');
-}
-
-function next() {
-    const pages = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'];
-    const curr = state.page;
-    
-    if (curr === 'q3' || curr === 'q6') {
-        const val = document.getElementById(curr).value.trim();
+    submit() {
+        const val = document.getElementById('q6').value.trim();
         if (!val) { alert('Completați răspunsul'); return; }
-        state.answers[curr] = val;
-    } else {
-        const sel = document.querySelector('input[name="' + curr + '"]:checked');
-        if (!sel) { alert('Selectați un răspuns'); return; }
+        this.state.answers.q6 = val;
+        
+        const ans = this.state.answers;
+        if (!ans.q1 || !ans.q2 || !ans.q3 || !ans.q4 || !ans.q5 || !ans.q6) {
+            alert('Completați toate răspunsurile');
+            return;
+        }
+        
+        const d = new Date();
+        const summary = `Intrebarea 1: ${ans.q1}\nIntrebarea 2: ${ans.q2}\nIntrebarea 3: ${ans.q3}\nIntrebarea 4: ${ans.q4}\nIntrebarea 5: ${ans.q5}\nIntrebarea 6: ${ans.q6}`;
+        
+        emailjs.send('service_h7j6sa1', 'template_dd3133n', {
+            user_name: ans.name,
+            date: d.toLocaleDateString('ro-RO') + ' ' + d.toLocaleTimeString('ro-RO'),
+            score: this.state.correct,
+            total: 4,
+            percentage: Math.round((this.state.correct / 4) * 100),
+            summary: summary
+        }).then(() => { this.show('success'); }).catch(err => { alert('Eroare'); console.log(err); });
     }
-    
-    const idx = pages.indexOf(curr);
-    if (idx < pages.length - 1) show(pages[idx + 1]);
-}
-
-function back() {
-    const pages = ['name', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6'];
-    const curr = state.page;
-    const idx = pages.indexOf(curr);
-    if (idx > 0) show(pages[idx - 1]);
-}
-
-function getDate() {
-    const d = new Date();
-    return d.toLocaleDateString('ro-RO') + ' ' + d.toLocaleTimeString('ro-RO');
-}
-
-function submit() {
-    const val = document.getElementById('q6').value.trim();
-    if (!val) { alert('Completați răspunsul'); return; }
-    state.answers.q6 = val;
-    
-    const ans = state.answers;
-    if (!ans.q1 || !ans.q2 || !ans.q3 || !ans.q4 || !ans.q5 || !ans.q6) {
-        alert('Completați toate răspunsurile');
-        return;
-    }
-    
-    const
+};
+</script>
+</body>
+</html>
